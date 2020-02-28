@@ -34,12 +34,12 @@ let subscription = {
 
 let subscriptionMobile = {
     endpoint:
-        'https://fcm.googleapis.com/fcm/send/eSdTjK5dccQ:APA91bFIw_SA6LAUXoH9kVKMSAwMdMLsW9ngYSXAfQdp9c7l-lmDz383u28VtDoeJvxe1d55yNT7iyPAo-OZ_LoiBqAXgBSUmIfrlGkqUJ2zi-fxHWKN7CU0oPTGoyDeCw31K_6xnZr4',
+        'https://fcm.googleapis.com/fcm/send/eCAdrwpa1qc:APA91bGygB2KbQPPkSTZIH66dJ4fpbped0Yk-8e6QcDwZdYhj1TDc9seXMjR6AFuV0PPEwLkiovvlHEy7xTmglxPslnvq89hFCGcuFApraUVVWAqVrZZv9Rr8fP4gnpkq7BLntNYz8sS',
     expirationTime: null,
     keys: {
         p256dh:
-            'BLJQ1Pk7AzsoauNuKUsRmuYkHaODi029oZ9Tv8Lp_6ZT-YfsMFb-nO1uknNeHTkqL5OW-cmXHwo-YibjQF-7yz0',
-        auth: '7cotnD5yewH3-aeKvgCIKg'
+            'BNAnSwoRB20M0ooDyBJCSStkfryLAuEXifcISIkn6o98Ru9pNXooxbTLuoFG93C62S6JmKHB3C2udGv_pBxscPE',
+        auth: 'KTTpxHFovuv2SJp2y4aMtw'
     }
 };
 
