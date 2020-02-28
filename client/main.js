@@ -29,6 +29,14 @@ if ('serviceWorker' in navigator) {
     message.innerHTML = 'Sem service worker';
 }
 
+if ('actions' in Notification.prototype) {
+    message.innerHTML = `${message.innerHTML}
+        Actions suportadas`;
+} else {
+    message.innerHTML = `${message.innerHTML}
+    Actions não suportadas`;
+}
+
 async function runPushNotification() {
     if ('serviceWorker' in navigator) {
         const register = await navigator.serviceWorker.register('/sw.js', {

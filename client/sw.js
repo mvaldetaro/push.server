@@ -4,17 +4,45 @@ self.addEventListener('push', event => {
     console.log(data);
 
     const options = {
-        body: data.body,
-        badge: './images/Investira_Icone_128_margin.png',
-        icon: './images/Investira_Icone_512_margin.png',
+        ...data,
         actions: [
             {
                 action: 'view-action',
                 title: 'Visualizar'
             }
-        ],
-        ...(data.tag && { tag: data.tag })
+        ]
     };
 
-    self.registration.showNotification(data.title, options);
+    console.log(options);
+
+    // https://developers.google.com/web/fundamentals/push-notifications/handling-messages
+    const promiseChain = self.registration.showNotification(
+        data.title,
+        options
+    );
+
+    event.waitUntil(promiseChain);
+});
+
+self.addEventListener('notificationclick', function(event) {
+    if (!event.action) {
+        // Was a normal notification click
+        console.log('Notification Click.');
+        clients.openWindow('http://localhost:5001/');
+
+        //event.notification.close();
+        return;
+    }
+
+    switch (event.action) {
+        case 'view-action':
+            console.log('Abrir web app');
+            window.open('http://localhost:5001/');
+            //event.notification.close();
+            break;
+        default:
+            console.log(`Unknown action clicked: '${event.action}'`);
+            //event.notification.close();
+            break;
+    }
 });

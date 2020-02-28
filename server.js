@@ -58,9 +58,10 @@ app.post('/subscribe', (req, res) => {
 
     res.status(201).json({});
 
-    // webPush
-    //     .sendNotification(xSubscription, xPayload)
-    //     .catch(rErr => console.error(rErr));
+    // Gambiarra para testar notification pelo browser;
+    webPush
+        .sendNotification(xSubscription, xPayload)
+        .catch(rErr => console.error(rErr));
 });
 
 /**
@@ -98,7 +99,7 @@ const sendPushNotification = pSubscribes => {
 // Dispara uma notificação a cada 10 segundos
 sendPushNotification(subscribes);
 
-// Incia o servidor
+// Inicia o servidor
 app.set('port', process.env.PORT || 5000);
 
 const server = app.listen(app.get('port'), () => {
