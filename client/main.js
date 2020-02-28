@@ -18,11 +18,15 @@ function urlBase64ToUint8Array(base64String) {
 const publicVapidKey =
     'BJo1VWCxpBe-yXN53W3qESEw2n7_nHEGokELWfpnh4u5ob0s3wVTkArGij62nHfCN2XejD5adNDWBpSEkUhDCpw';
 
-//const triggerPush = document.querySelector('.btn-push');
+const triggerPush = document.querySelector('.btn-push');
+const message = document.querySelector('#msg');
 
 if ('serviceWorker' in navigator) {
     console.log('Iniciando service worker');
+    message.innerHTML = 'Iniciando service worker';
     runPushNotification().catch(error => console.error(error));
+} else {
+    message.innerHTML = 'Sem service worker';
 }
 
 async function runPushNotification() {
@@ -48,6 +52,6 @@ async function runPushNotification() {
     }
 }
 
-// triggerPush.addEventListener('click', () => {
-//     runPushNotification().catch(error => console.error(error));
-// });
+triggerPush.addEventListener('click', () => {
+    runPushNotification().catch(error => console.error(error));
+});
