@@ -19,29 +19,50 @@ const publicVapidKey =
     'BJo1VWCxpBe-yXN53W3qESEw2n7_nHEGokELWfpnh4u5ob0s3wVTkArGij62nHfCN2XejD5adNDWBpSEkUhDCpw';
 
 const triggerPush = document.querySelector('.btn-push');
+const triggerPushAll = document.querySelector('.btn-push-all');
+const triggerSubscribe = document.querySelector('.btn-push-subscribe');
 const message = document.querySelector('#msg');
+const local = document.querySelector('#local');
+const hasServiceWorker = 'serviceWorker' in navigator;
+let serviceWorker = null;
 
-if ('serviceWorker' in navigator) {
-    console.log('Iniciando service worker');
-    message.innerHTML = 'Iniciando service worker';
-    runPushNotification().catch(error => console.error(error));
+if (hasServiceWorker) {
+    message.innerHTML = '<li>Service worker iniciado</li>';
+    serviceWorker = navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+    });
+    //runPushNotification().catch(error => console.error(error));
 } else {
-    message.innerHTML = 'Sem service worker';
+    message.innerHTML = '<li>Sem service worker</li>';
 }
 
 if ('actions' in Notification.prototype) {
     message.innerHTML = `${message.innerHTML}
-        Actions suportadas`;
+        <li>Actions suportadas</li>`;
 } else {
     message.innerHTML = `${message.innerHTML}
-    Actions não suportadas`;
+    <li>Actions não suportadas</li>`;
 }
 
-async function runPushNotification() {
-    if ('serviceWorker' in navigator) {
-        const register = await navigator.serviceWorker.register('/sw.js', {
-            scope: '/'
-        });
+if (window.localStorage) {
+    message.innerHTML = `${message.innerHTML}
+    <li>localStorage suportado</li>`;
+    window.localStorage.setItem('push_messages', '[]');
+    console.log(localStorage.length);
+    console.log(JSON.parse(window.localStorage.getItem('push_messages')));
+    local.innerHTML = `${window.localStorage.getItem('push_messages')}`;
+} else {
+    message.innerHTML = `${message.innerHTML}
+    <li>localStorage não suportado</li>`;
+}
+
+async function runSubscribe() {
+    if (hasServiceWorker) {
+        // const register = await navigator.serviceWorker.register('/sw.js', {
+        //     scope: '/'
+        // });
+
+        const register = await serviceWorker;
 
         const subscription = await register.pushManager.subscribe({
             userVisibleOnly: true,
@@ -60,6 +81,45 @@ async function runPushNotification() {
     }
 }
 
-triggerPush.addEventListener('click', () => {
-    runPushNotification().catch(error => console.error(error));
+async function dispatchPushNotification() {
+    if (hasServiceWorker) {
+        // const register = await navigator.serviceWorker.register('/sw.js', {
+        //     scope: '/'
+        // });
+        const register = await serviceWorker;
+
+        const subscription = await register.pushManager.getSubscription();
+
+        console.log(subscription);
+
+        await fetch('/notify', {
+            method: 'POST',
+            body: JSON.stringify(subscription),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+    } else {
+        console.error('Service workers are not supported in this browser');
+    }
+}
+
+async function dispatchPushNotificationAll() {
+    await fetch('/notifyall', {
+        method: 'POST'
+    });
+}
+
+triggerSubscribe.addEventListener('click', () => {
+    runSubscribe().catch(error => console.error(error));
+});
+
+triggerPush.addEventListener('click', e => {
+    e.preventDefault();
+    dispatchPushNotification().catch(error => console.error(error));
+});
+
+triggerPushAll.addEventListener('click', e => {
+    e.preventDefault();
+    dispatchPushNotificationAll().catch(error => console.error(error));
 });

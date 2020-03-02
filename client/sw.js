@@ -1,3 +1,19 @@
+function updateLocalStorage(pNewNotification) {
+    const notifications = JSON.parse(
+        window.localStorage.getItem('push_messages')
+    );
+
+    const newData = [...notifications, pNewNotification];
+
+    window.localStorage.setItem('push_messages', JSON.stringify(newData));
+}
+
+// self.addEventListener('push', event => {
+//     console.log(event.data.json());
+//     console.log(clients);
+//     //updateLocalStorage(event.data.json());
+// });
+
 self.addEventListener('push', event => {
     console.log(event);
     const data = event.data.json();
@@ -30,19 +46,19 @@ self.addEventListener('notificationclick', function(event) {
         console.log('Notification Click.');
         clients.openWindow('http://localhost:5001/');
 
-        //event.notification.close();
+        event.notification.close();
         return;
     }
 
     switch (event.action) {
         case 'view-action':
             console.log('Abrir web app');
-            window.open('http://localhost:5001/');
-            //event.notification.close();
+            clients.openWindow('http://localhost:5001/');
+            event.notification.close();
             break;
         default:
             console.log(`Unknown action clicked: '${event.action}'`);
-            //event.notification.close();
+            event.notification.close();
             break;
     }
 });

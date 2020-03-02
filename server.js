@@ -23,12 +23,12 @@ webPush.setVapidDetails(
 // Assinatura do usuário desktop
 let subscription = {
     endpoint:
-        'https://fcm.googleapis.com/fcm/send/dCD_f-URa38:APA91bHG_95RZmbBrHeLrWDMTd_NEKHJEp_DH2wkaLqo8z1gmfD9CsDyly_POysq2LFMvElO1PY5RPq7B4C2LoPD4WaL2PmZ7oB7Fn0uC4c68WSW_82JA6lM-2EGLfvqy-m1b_vO3XYM',
+        'https://fcm.googleapis.com/fcm/send/curlGrEjUZ0:APA91bFCU_1wDBuKwlg5Hp57vKUosMk4gAU-jzo-s21lI-38zbR3ZKRrnL5OhCZZNsLUdgm40V4l9r97O2NDfvZ9WzD5M2GlwhlosMCZba5sk7qs-6hGQ5FbvPVj9d8_FxEQ1CSvHW_R',
     expirationTime: null,
     keys: {
         p256dh:
-            'BBxlFD_Qc752QSDeVQ_8SKpu1VR3h8SDjUWVziu1m1uzL2JAot3GnxgZTgYSaLzzpSExuD5Rr8rHZicNtTd8nz8',
-        auth: 'kCkId27O680WmwrLc3x_rg'
+            'BFUMCI79FLnR7HMoEOgCQaWrNXTnEXjqTNkkQdoL9YeVfEF6BfbFFglhtsl1Df5n0OYGli0mUvkk76PWTLyO7H0',
+        auth: '3gm-Bw19Ottr6orHqFq-MQ'
     }
 };
 
@@ -50,18 +50,31 @@ app.post('/subscribe', (req, res) => {
 
     console.log(xSubscription);
 
-    const xPayload = JSON.stringify({
-        title: 'Bem vindo(a)!',
-        badge: 'https://static.investira.com.br/Investira_Icone_128_margin.png',
-        icon: 'https://static.investira.com.br/Investira_Icone_512_margin.png'
-    });
+    // const xPayload = JSON.stringify({
+    //     title: 'Bem vindo(a)!',
+    //     badge: 'https://static.investira.com.br/Investira_Icone_128_margin.png',
+    //     icon: 'https://static.investira.com.br/Investira_Icone_512_margin.png'
+    // });
 
     res.status(201).json({});
+});
 
-    // Gambiarra para testar notification pelo browser;
-    webPush
-        .sendNotification(xSubscription, xPayload)
-        .catch(rErr => console.error(rErr));
+app.post('/notify', (req, res) => {
+    const xSubscription = req.body;
+    console.log(xSubscription);
+
+    sendPushNotification(xSubscription, new Date());
+
+    res.status(200).json({});
+});
+
+app.post('/notifyall', (req, res) => {
+    console.log('notifyall');
+    subscribes.forEach(pSubscription => {
+        sendPushNotification(pSubscription, new Date());
+    });
+
+    res.status(200).json({});
 });
 
 /**
@@ -69,35 +82,39 @@ app.post('/subscribe', (req, res) => {
  * Envia notificaçoes para os assinantes
  */
 
-const sendPushNotification = pSubscribes => {
+const sendIntervalPushNotification = pSubscribes => {
     let counter = 1;
 
     setInterval(() => {
         pSubscribes.forEach(pSubscription => {
-            const xPayload = JSON.stringify({
-                title: 'Investira',
-                body: `Assinante ${pSubscription.keys.auth} - ${counter}!`,
-                badge:
-                    'https://static.investira.com.br/Investira_Icone_128_margin.png',
-                icon:
-                    'https://static.investira.com.br/Investira_Icone_512_margin.png',
-                tag: `${pSubscription.keys.auth}contato${counter}` // impede de exibir a mesma notificação
-            });
-
-            webPush
-                .sendNotification(pSubscription, xPayload)
-                .catch(rErr => console.error(rErr));
-            console.log(
-                `webpush -> sendNotification ${counter} -> ${pSubscription.keys.auth}`
-            );
+            sendPushNotification(pSubscription, counter);
         });
 
         counter++;
     }, 10000);
 };
 
+const sendPushNotification = (pSubscription, counter) => {
+    const xPayload = JSON.stringify({
+        title: 'Investira',
+        lang: 'pt-BR',
+        body: `Assinante ${pSubscription.keys.auth} - ${counter}!`,
+        //data: {}, // Aqui pode passar qualquer tipo de dado
+        badge: 'https://static.investira.com.br/Investira_Icone_128_margin.png',
+        icon: 'https://static.investira.com.br/Investira_Icone_512_margin.png',
+        tag: `${pSubscription.keys.auth}contato${counter}` // impede de exibir a mesma notificação
+    });
+
+    webPush
+        .sendNotification(pSubscription, xPayload)
+        .catch(rErr => console.error(rErr));
+    console.log(
+        `webpush -> sendNotification ${counter} -> ${pSubscription.keys.auth}`
+    );
+};
+
 // Dispara uma notificação a cada 10 segundos
-sendPushNotification(subscribes);
+//sendIntervalPushNotification(subscribes);
 
 // Inicia o servidor
 app.set('port', process.env.PORT || 5000);
