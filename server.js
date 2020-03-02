@@ -4,15 +4,39 @@ const express = require('express');
 const webPush = require('web-push');
 const bodyParser = require('body-parser');
 const path = require('path');
+const uuid = require('uuid');
 const config = require('./config');
 
 const app = express();
+
+const mongoose = require('mongoose');
+
 app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: false }));
 
 // Define diretório do servidor estático
 app.use(express.static(path.join(__dirname, 'client')));
 
 console.log(config);
+
+function mongo() {
+    this.mongoConnection = mongoose
+        .connect('mongodb://localhost:27017/mongodb-push-server', {
+            useNewUrlParser: true,
+            useFindAndModify: true,
+            useUnifiedTopology: true
+        })
+        .then(() => {
+            console.info('Conectado ao banco de dados');
+        })
+        .catch(err => {
+            console.error('erro ao conectar', err);
+        });
+}
+
+mongo();
+
+const Subscriber = require('./schemas/subscriber');
 
 webPush.setVapidDetails(
     config.EMAIL,
@@ -47,28 +71,42 @@ let subscribes = [subscription, subscriptionMobile];
 
 app.post('/subscribe', (req, res) => {
     const xSubscription = req.body;
+    const xUid = uuid.v4();
 
-    console.log(xSubscription);
+    console.log('xUid', xUid);
+    console.log('xSubscription', xSubscription);
 
-    // const xPayload = JSON.stringify({
-    //     title: 'Bem vindo(a)!',
-    //     badge: 'https://static.investira.com.br/Investira_Icone_128_margin.png',
-    //     icon: 'https://static.investira.com.br/Investira_Icone_512_margin.png'
-    // });
+    const xSubscriber = new Subscriber({
+        user_id: xUid,
+        push_assign: JSON.stringify(xSubscription)
+    });
 
-    res.status(201).json({});
+    xSubscriber.save(err => {
+        if (err) {
+            console.error(err);
+            res.status(400).json({
+                message: 'Erro ao criar registro'
+            });
+        } else {
+            res.status(201).json({
+                message: 'Registro criado com sucesso'
+            });
+        }
+    });
+
+    // if (err) {
+    //     res.status(400).json({ error: err });
+    // } else {
+    //     res.status(201).json({
+    //         message: 'Registro criado com sucesso'
+    //     });
+    // }
 });
 
 app.post('/unsubscribe', (req, res) => {
     const xSubscription = req.body;
 
     console.log(xSubscription);
-
-    // const xPayload = JSON.stringify({
-    //     title: 'Bem vindo(a)!',
-    //     badge: 'https://static.investira.com.br/Investira_Icone_128_margin.png',
-    //     icon: 'https://static.investira.com.br/Investira_Icone_512_margin.png'
-    // });
 
     res.status(201).json({});
 });
