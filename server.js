@@ -23,12 +23,12 @@ webPush.setVapidDetails(
 // Assinatura do usuário desktop
 let subscription = {
     endpoint:
-        'https://fcm.googleapis.com/fcm/send/curlGrEjUZ0:APA91bFCU_1wDBuKwlg5Hp57vKUosMk4gAU-jzo-s21lI-38zbR3ZKRrnL5OhCZZNsLUdgm40V4l9r97O2NDfvZ9WzD5M2GlwhlosMCZba5sk7qs-6hGQ5FbvPVj9d8_FxEQ1CSvHW_R',
+        'https://fcm.googleapis.com/fcm/send/cxidph6ok_c:APA91bHQOD2VPI_Pt4mNC_Rs_py3c5u1NOtGBd37qyGjPJfilZJatrZYaMjdDKmfI-BURGg5PLmqNsoLCQYHL0nsdLf29nUYSEBRV1rOiACXkYhgJSX46dije1Lx4TVri5Vz-W_U4QcV',
     expirationTime: null,
     keys: {
         p256dh:
-            'BFUMCI79FLnR7HMoEOgCQaWrNXTnEXjqTNkkQdoL9YeVfEF6BfbFFglhtsl1Df5n0OYGli0mUvkk76PWTLyO7H0',
-        auth: '3gm-Bw19Ottr6orHqFq-MQ'
+            'BKLcoP64j9uycF9Hhca_ZEJcPEVyy_pq5QAXyiJe0MdSFjyDs_ky6MCXRgzqnWpm9YY0QnkVbz6ltXEffvnEvE0',
+        auth: 'aa7MjTUQWvlCLYkXB2_Zfw'
     }
 };
 
@@ -46,6 +46,20 @@ let subscriptionMobile = {
 let subscribes = [subscription, subscriptionMobile];
 
 app.post('/subscribe', (req, res) => {
+    const xSubscription = req.body;
+
+    console.log(xSubscription);
+
+    // const xPayload = JSON.stringify({
+    //     title: 'Bem vindo(a)!',
+    //     badge: 'https://static.investira.com.br/Investira_Icone_128_margin.png',
+    //     icon: 'https://static.investira.com.br/Investira_Icone_512_margin.png'
+    // });
+
+    res.status(201).json({});
+});
+
+app.post('/unsubscribe', (req, res) => {
     const xSubscription = req.body;
 
     console.log(xSubscription);

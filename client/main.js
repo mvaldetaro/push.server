@@ -21,6 +21,7 @@ const publicVapidKey =
 const triggerPush = document.querySelector('.btn-push');
 const triggerPushAll = document.querySelector('.btn-push-all');
 const triggerSubscribe = document.querySelector('.btn-push-subscribe');
+const triggerUnsubscribe = document.querySelector('.btn-push-unsubscribe');
 const message = document.querySelector('#msg');
 const local = document.querySelector('#local');
 const hasServiceWorker = 'serviceWorker' in navigator;
@@ -56,7 +57,7 @@ if (window.localStorage) {
     <li>localStorage não suportado</li>`;
 }
 
-async function runSubscribe() {
+async function subscribeUser() {
     if (hasServiceWorker) {
         // const register = await navigator.serviceWorker.register('/sw.js', {
         //     scope: '/'
@@ -76,6 +77,30 @@ async function runSubscribe() {
                 'Content-Type': 'application/json'
             }
         });
+    } else {
+        console.error('Service workers are not supported in this browser');
+    }
+}
+
+async function unsubscribeUser() {
+    if (hasServiceWorker) {
+        const register = await serviceWorker;
+        const subscription = await register.pushManager.getSubscription();
+
+        if (subscription) {
+            const unsubscribe = await subscription.unsubscribe();
+            return unsubscribe;
+        } else {
+            console.error('Usuário não inscrito');
+        }
+
+        // await fetch('/unsubscribe', {
+        //     method: 'POST',
+        //     body: JSON.stringify(subscription),
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     }
+        // });
     } else {
         console.error('Service workers are not supported in this browser');
     }
@@ -111,7 +136,15 @@ async function dispatchPushNotificationAll() {
 }
 
 triggerSubscribe.addEventListener('click', () => {
-    runSubscribe().catch(error => console.error(error));
+    subscribeUser().catch(error => console.error(error));
+});
+
+triggerUnsubscribe.addEventListener('click', () => {
+    unsubscribeUser()
+        .then(rRes => {
+            console.log('Inscrição cancelada', rRes);
+        })
+        .catch(error => console.error(error));
 });
 
 triggerPush.addEventListener('click', e => {
