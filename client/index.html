@@ -11,25 +11,28 @@
         <header>
             <h1>Web Push Notifications</h1>
         </header>
+        <ul id="msg" class="msg"></ul>
         <div class="allow">
             <button class="btn-push-subscribe" type="submit">
-                Permitir Push Notifications
+                Ativar Push Notifications
             </button>
             <button class="btn-push-unsubscribe" type="submit">
                 Cancelar Push Notifications
             </button>
         </div>
-        <ul id="msg"></ul>
-        <div class="buttons">
-            <form>
-                <label>
-                    <span>Título:</span>
-                    <input type="text" value="" />
-                </label>
-                <label>
-                    <span>Texto:</span>
-                    <input type="text" value="" />
-                </label>
+
+        <form>
+            <label>
+                <span>Selecionar usuário:</span>
+                <select id="users" name="users"></select>
+            </label>
+
+            <label>
+                <span>Conteúdo:</span>
+                <input type="text" id="body" name="body" value="" />
+            </label>
+
+            <div class="buttons">
                 <button class="btn-push" type="submit">
                     Disparar Push Notification
                 </button>
@@ -37,8 +40,8 @@
                 <button class="btn-push-all" type="submit">
                     Notificar todos os assinantes
                 </button>
-            </form>
-        </div>
+            </div>
+        </form>
 
         <div>
             <h2>LocalStorage</h2>

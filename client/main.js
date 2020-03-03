@@ -19,6 +19,7 @@ const publicVapidKey =
     'BJo1VWCxpBe-yXN53W3qESEw2n7_nHEGokELWfpnh4u5ob0s3wVTkArGij62nHfCN2XejD5adNDWBpSEkUhDCpw';
 
 const triggerPush = document.querySelector('.btn-push');
+const selectUsers = document.querySelector('#users');
 const triggerPushAll = document.querySelector('.btn-push-all');
 const triggerSubscribe = document.querySelector('.btn-push-subscribe');
 const triggerUnsubscribe = document.querySelector('.btn-push-unsubscribe');
@@ -26,13 +27,13 @@ const message = document.querySelector('#msg');
 const local = document.querySelector('#local');
 const hasServiceWorker = 'serviceWorker' in navigator;
 let serviceWorker = null;
+let users = [];
 
 if (hasServiceWorker) {
     message.innerHTML = '<li>Service worker iniciado</li>';
     serviceWorker = navigator.serviceWorker.register('/sw.js', {
         scope: '/'
     });
-    //runPushNotification().catch(error => console.error(error));
 } else {
     message.innerHTML = '<li>Sem service worker</li>';
 }
@@ -49,8 +50,6 @@ if (window.localStorage) {
     message.innerHTML = `${message.innerHTML}
     <li>localStorage suportado</li>`;
     window.localStorage.setItem('push_messages', '[]');
-    console.log(localStorage.length);
-    console.log(JSON.parse(window.localStorage.getItem('push_messages')));
     local.innerHTML = `${window.localStorage.getItem('push_messages')}`;
 } else {
     message.innerHTML = `${message.innerHTML}
@@ -89,7 +88,19 @@ async function unsubscribeUser() {
 
         if (subscription) {
             const unsubscribe = await subscription.unsubscribe();
-            return unsubscribe;
+            await fetch('/unsubscribe', {
+                method: 'POST',
+                body: JSON.stringify(subscription),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(rRes => {
+                    return rRes.message;
+                })
+                .catch(rErr => {
+                    return error;
+                });
         } else {
             console.error('Usuário não inscrito');
         }
@@ -108,18 +119,22 @@ async function unsubscribeUser() {
 
 async function dispatchPushNotification() {
     if (hasServiceWorker) {
-        // const register = await navigator.serviceWorker.register('/sw.js', {
-        //     scope: '/'
-        // });
-        const register = await serviceWorker;
+        //const register = await serviceWorker;
+        //const subscription = await register.pushManager.getSubscription();
 
-        const subscription = await register.pushManager.getSubscription();
+        const xUserValue = document.querySelector('#users').value;
+        const xBodyValue = document.querySelector('#body').value;
+        const xSubscription = users[xUserValue].user_id;
 
-        console.log(subscription);
+        //console.log(xUserValue, xBodyValue, xSubscription);
+
+        const xPayload = { user_id: xSubscription, body: xBodyValue };
+
+        console.log(xPayload);
 
         await fetch('/notify', {
             method: 'POST',
-            body: JSON.stringify(subscription),
+            body: JSON.stringify(xPayload),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -135,6 +150,34 @@ async function dispatchPushNotificationAll() {
     });
 }
 
+async function getUsers() {
+    const xUsers = await fetch('/users', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+        .then(rRes => {
+            return rRes.json();
+        })
+        .catch(rErr => {
+            console.log(rErr);
+        });
+
+    users = xUsers.data;
+
+    users.forEach((xUser, xIndex) => {
+        selectUsers.innerHTML = `
+            ${selectUsers.innerHTML}
+            <option value="${xIndex}">${xUser.user_id}</option>
+            `;
+    });
+
+    console.log(users);
+}
+
+getUsers();
+
 triggerSubscribe.addEventListener('click', () => {
     subscribeUser().catch(error => console.error(error));
 });
@@ -142,7 +185,7 @@ triggerSubscribe.addEventListener('click', () => {
 triggerUnsubscribe.addEventListener('click', () => {
     unsubscribeUser()
         .then(rRes => {
-            console.log('Inscrição cancelada', rRes);
+            console.log('Inscrição cancelada', JSON.stringify(rRes));
         })
         .catch(error => console.error(error));
 });

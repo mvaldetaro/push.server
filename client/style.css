@@ -11,7 +11,8 @@ html {
 }
 
 body {
-    font-family: "Roboto", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: 'Roboto', 'HelveticaNeue', 'Helvetica Neue', Helvetica, Arial,
+        sans-serif;
 }
 
 header {
@@ -21,6 +22,10 @@ header {
     justify-content: center;
     align-items: center;
     margin-bottom: 30px;
+}
+
+.msg {
+    font-size: 11px;
 }
 
 form {
@@ -33,12 +38,13 @@ label {
     display: block;
 }
 
-label>span {
+label > span {
     display: block;
     margin-bottom: 4;
 }
 
-label>input {
+label > input,
+label > select {
     font-size: 1rem;
     box-sizing: border-box;
     display: block;
@@ -60,7 +66,7 @@ button {
     font-size: 11px;
     font-weight: 600;
     line-height: 38px;
-    letter-spacing: .1rem;
+    letter-spacing: 0.1rem;
     text-transform: uppercase;
     text-decoration: none;
     white-space: nowrap;
@@ -86,7 +92,7 @@ ul {
 .btn-push-unsubscribe,
 .btn-push-all {
     background-color: red;
-    border: 0
+    border: 0;
 }
 
 .allow {

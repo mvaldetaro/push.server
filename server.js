@@ -17,8 +17,6 @@ app.use(bodyParser.json());
 // Define diretório do servidor estático
 app.use(express.static(path.join(__dirname, 'client')));
 
-console.log(config);
-
 function mongo() {
     this.mongoConnection = mongoose
         .connect('mongodb://localhost:27017/mongodb-push-server', {
@@ -44,6 +42,18 @@ webPush.setVapidDetails(
     config.PRIVATE_VAPID_KEY
 );
 
+/**
+ *
+ * getUsers
+ */
+
+const getUsers = (pUserId = {}) => {
+    const subscribes = Subscriber.find(pUserId, (err, users) => {
+        return users;
+    });
+    return subscribes;
+};
+
 // Assinatura do usuário desktop
 let subscription = {
     endpoint:
@@ -67,17 +77,15 @@ let subscriptionMobile = {
     }
 };
 
-let subscribes = [subscription, subscriptionMobile];
-
 app.post('/subscribe', (req, res) => {
     const xSubscription = req.body;
-    const xUid = uuid.v4();
+    //const xUid = uuid.v4();
 
-    console.log('xUid', xUid);
+    //console.log('xUid', xUid);
     console.log('xSubscription', xSubscription);
 
     const xSubscriber = new Subscriber({
-        user_id: xUid,
+        user_id: xSubscription.keys.auth,
         push_assign: JSON.stringify(xSubscription)
     });
 
@@ -104,28 +112,41 @@ app.post('/subscribe', (req, res) => {
 });
 
 app.post('/unsubscribe', (req, res) => {
-    const xSubscription = req.body;
-
-    console.log(xSubscription);
-
-    res.status(201).json({});
+    const xAuthKey = req.body.keys.auth;
+    Subscriber.deleteOne({ user_id: xAuthKey }, err => {
+        if (err) {
+            res.status(400).json({ error: JSON.stringify(err) });
+        } else {
+            res.status(201).json({ message: `${xAuthKey} removido` });
+        }
+    });
 });
 
 app.post('/notify', (req, res) => {
-    const xSubscription = req.body;
-    console.log(xSubscription);
-
-    sendPushNotification(xSubscription, new Date());
-
+    const xPayload = req.body;
+    getUsers({ user_id: xPayload.user_id }).then(user => {
+        const xSubscription = JSON.parse(user[0].push_assign);
+        sendPushNotification(xSubscription, new Date(), xPayload.body);
+    });
     res.status(200).json({});
 });
 
-app.post('/notifyall', (req, res) => {
-    console.log('notifyall');
-    subscribes.forEach(pSubscription => {
-        sendPushNotification(pSubscription, new Date());
-    });
+app.get('/users', (req, res) => {
+    getUsers()
+        .then(users => {
+            res.status(200).json({ data: users });
+        })
+        .catch(rErr => {
+            res.status(400).json({ error: JSON.stringify(pErr) });
+        });
+});
 
+app.post('/notifyall', (req, res) => {
+    getUsers().then(users => {
+        users.forEach(user => {
+            sendPushNotification(JSON.parse(user.push_assign), new Date());
+        });
+    });
     res.status(200).json({});
 });
 
@@ -146,11 +167,15 @@ const sendIntervalPushNotification = pSubscribes => {
     }, 10000);
 };
 
-const sendPushNotification = (pSubscription, counter) => {
+const sendPushNotification = (
+    pSubscription,
+    counter,
+    pBody = 'body default'
+) => {
     const xPayload = JSON.stringify({
         title: 'Investira',
         lang: 'pt-BR',
-        body: `Assinante ${pSubscription.keys.auth} - ${counter}!`,
+        body: `${pBody} | ${pSubscription.keys.auth} - ${counter}!`,
         //data: {}, // Aqui pode passar qualquer tipo de dado
         badge: 'https://static.investira.com.br/Investira_Icone_128_margin.png',
         icon: 'https://static.investira.com.br/Investira_Icone_512_margin.png',
