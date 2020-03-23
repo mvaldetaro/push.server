@@ -13,6 +13,27 @@
         </header>
         <ul id="msg" class="msg"></ul>
         <div class="allow">
+            <button
+                class="btn-push-android"
+                type="button"
+                onclick="showAndroidToast('Olá Android')"
+            >
+                Toast
+            </button>
+            <button
+                class="btn-push-android"
+                type="button"
+                onclick="showAndroidDialog('Olá Android')"
+            >
+                Dialog
+            </button>
+            <button
+                class="btn-push-android"
+                type="button"
+                onclick="showAndroidLog('Olá Android')"
+            >
+                LOG
+            </button>
             <button class="btn-push-subscribe" type="submit">
                 Ativar Push Notifications
             </button>
@@ -33,20 +54,33 @@
             </label>
 
             <div class="buttons">
-                <button class="btn-push" type="submit">
+                <button class="btn-push" type="button">
                     Disparar Push Notification
                 </button>
 
-                <button class="btn-push-all" type="submit">
+                <button class="btn-push-all" type="button">
                     Notificar todos os assinantes
                 </button>
             </div>
         </form>
 
         <div>
-            <h2>LocalStorage</h2>
+            <!-- <h2>LocalStorage</h2> -->
             <pre id="local"></pre>
         </div>
+        <script type="text/javascript">
+            function showAndroidToast(toast) {
+                Android.showToast(toast);
+            }
+
+            function showAndroidDialog(content) {
+                Android.showDialog(content);
+            }
+
+            function showAndroidLog(userId) {
+                Android.setPush(userId);
+            }
+        </script>
         <script src="main.js"></script>
     </body>
 </html>

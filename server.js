@@ -1,6 +1,8 @@
 require('dotenv').config({ path: 'variables.env' });
 
 const express = require('express');
+const fs = require('fs');
+const https = require('https');
 const webPush = require('web-push');
 const bodyParser = require('body-parser');
 const path = require('path');
@@ -194,6 +196,7 @@ const sendPushNotification = (
 //sendIntervalPushNotification(subscribes);
 
 // Inicia o servidor
+
 app.set('port', process.env.PORT || 5000);
 
 const server = app.listen(app.get('port'), () => {

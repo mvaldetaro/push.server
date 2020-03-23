@@ -34,17 +34,18 @@ if (hasServiceWorker) {
     serviceWorker = navigator.serviceWorker.register('/sw.js', {
         scope: '/'
     });
+    console.log(serviceWorker);
 } else {
     message.innerHTML = '<li>Sem service worker</li>';
 }
 
-if ('actions' in Notification.prototype) {
-    message.innerHTML = `${message.innerHTML}
-        <li>Actions suportadas</li>`;
-} else {
-    message.innerHTML = `${message.innerHTML}
-    <li>Actions não suportadas</li>`;
-}
+// if ('actions' in Notification.prototype) {
+//     message.innerHTML = `${message.innerHTML}
+//         <li>Notifications e Actions suportadas</li>`;
+// } else {
+//     message.innerHTML = `${message.innerHTML}
+//     <li>Notifications e Actions não suportadas</li>`;
+// }
 
 if (window.localStorage) {
     message.innerHTML = `${message.innerHTML}
@@ -118,30 +119,26 @@ async function unsubscribeUser() {
 }
 
 async function dispatchPushNotification() {
-    if (hasServiceWorker) {
-        //const register = await serviceWorker;
-        //const subscription = await register.pushManager.getSubscription();
+    //const register = await serviceWorker;
+    //const subscription = await register.pushManager.getSubscription();
+    console.log('dispatchPushNotification');
+    const xUserValue = document.querySelector('#users').value;
+    const xBodyValue = document.querySelector('#body').value;
+    const xSubscription = users[xUserValue].user_id;
 
-        const xUserValue = document.querySelector('#users').value;
-        const xBodyValue = document.querySelector('#body').value;
-        const xSubscription = users[xUserValue].user_id;
+    //console.log(xUserValue, xBodyValue, xSubscription);
 
-        //console.log(xUserValue, xBodyValue, xSubscription);
+    const xPayload = { user_id: xSubscription, body: xBodyValue };
 
-        const xPayload = { user_id: xSubscription, body: xBodyValue };
+    console.log(xPayload);
 
-        console.log(xPayload);
-
-        await fetch('/notify', {
-            method: 'POST',
-            body: JSON.stringify(xPayload),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-    } else {
-        console.error('Service workers are not supported in this browser');
-    }
+    await fetch('/notify', {
+        method: 'POST',
+        body: JSON.stringify(xPayload),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
 }
 
 async function dispatchPushNotificationAll() {
